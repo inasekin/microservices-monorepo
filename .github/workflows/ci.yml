@@ -1,0 +1,25 @@
+﻿name: CI
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore MyMicroservicesMonorepo.sln
+
+      - name: Build
+        run: dotnet build MyMicroservicesMonorepo.sln --no-restore -c Release
+
+      - name: Test
+        run: dotnet test MyMicroservicesMonorepo.sln --no-build -c Release

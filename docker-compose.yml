@@ -1,0 +1,83 @@
+﻿version: '3.9'
+services:
+  gatewayservice:
+    build: ./src/GatewayService
+    ports:
+      - "5000:80"
+    depends_on:
+      - authservice
+      - rabbitmq
+
+  authservice:
+    build:
+      context: .
+      dockerfile: ./src/AuthService/Dockerfile
+    ports:
+      - "5001:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__Default: "Host=authdb;Database=auth_db;Username=postgres;Password=postgres;"
+    depends_on:
+      - authdb
+      - rabbitmq
+
+  userservice:
+    build:
+      context: .
+      dockerfile: ./src/UserService/Dockerfile
+    ports:
+      - "5002:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__Default: "Host=userdb;Database=user_db;Username=postgres;Password=postgres;"
+    depends_on:
+      - userdb
+      - rabbitmq
+
+  projectservice:
+    build:
+      context: .
+      dockerfile: ./src/ProjectService/Dockerfile
+    ports:
+      - "5003:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__Default: "Host=projectdb;Database=project_db;Username=postgres;Password=postgres;"
+    depends_on:
+      - projectdb
+      - rabbitmq
+
+  authdb:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "auth_db"
+    ports:
+      - "5433:5432"
+
+  userdb:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "user_db"
+
+  projectdb:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "project_db"
+
+  # MongoDB для сервисов, которые используют NoSQL
+  # mongodb:
+  #   image: mongo:5
+  #   ports:
+  #     - "27017:27017"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
