@@ -1,4 +1,6 @@
+using ProjectService.Domain.Models;
 using ProjectService.Infrastructure;
+using CommonContracts;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

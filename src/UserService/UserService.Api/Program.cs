@@ -1,6 +1,7 @@
+using UserService.Domain.Models;
 using UserService.Infrastructure;
-using Microsoft.EntityFrameworkCore;
 using CommonContracts;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
