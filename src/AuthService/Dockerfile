@@ -1,22 +1,18 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Копируем все .csproj файлы для AuthService и BuildingBlocks
-COPY ./src/AuthService/AuthService.Api/AuthService.Api.csproj AuthService.Api/
-COPY ./src/AuthService/AuthService.Domain/AuthService.Domain.csproj AuthService.Domain/
-COPY ./src/AuthService/AuthService.Infrastructure/AuthService.Infrastructure.csproj AuthService.Infrastructure/
-COPY ./src/BuildingBlocks/CommonContracts/CommonContracts.csproj BuildingBlocks/CommonContracts/
-COPY ./src/BuildingBlocks/EventBus/EventBus.csproj BuildingBlocks/EventBus/
+COPY ./src/BuildingBlocks/CommonContracts/CommonContracts.csproj ./BuildingBlocks/CommonContracts/
+COPY ./src/BuildingBlocks/EventBus/EventBus.csproj ./BuildingBlocks/EventBus/
+COPY ./src/AuthService/AuthService.Api/AuthService.Api.csproj ./AuthService/AuthService.Api/
+COPY ./src/AuthService/AuthService.Domain/AuthService.Domain.csproj ./AuthService/AuthService.Domain/
+COPY ./src/AuthService/AuthService.Infrastructure/AuthService.Infrastructure.csproj ./AuthService/AuthService.Infrastructure/
 
-# Восстанавливаем зависимости
-RUN dotnet restore AuthService.Api/AuthService.Api.csproj
+RUN dotnet restore ./AuthService/AuthService.Api/AuthService.Api.csproj
 
-# Копируем весь код
 COPY ./src .
+RUN dotnet build ./AuthService/AuthService.Api/AuthService.Api.csproj -c Release -o /app/build
 
-RUN dotnet build AuthService.Api/AuthService.Api.csproj -c Release -o /app/build
-
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/build .
 ENV ASPNETCORE_URLS=http://+:80

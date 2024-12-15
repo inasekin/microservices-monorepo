@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <StartupObject>AuthService.Api.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,5 +19,4 @@
     <ProjectReference Include="..\..\BuildingBlocks\CommonContracts\CommonContracts.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\EventBus\EventBus.csproj" />
   </ItemGroup>
-
 </Project>

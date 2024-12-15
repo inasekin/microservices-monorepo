@@ -1,20 +1,18 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Копируем csproj для UserService и BuildingBlocks
-COPY ./src/UserService/UserService.Api/UserService.Api.csproj UserService.Api/
-COPY ./src/UserService/UserService.Domain/UserService.Domain.csproj UserService.Domain/
-COPY ./src/UserService/UserService.Infrastructure/UserService.Infrastructure.csproj UserService.Infrastructure/
-COPY ./src/BuildingBlocks/CommonContracts/CommonContracts.csproj BuildingBlocks/CommonContracts/
-COPY ./src/BuildingBlocks/EventBus/EventBus.csproj BuildingBlocks/EventBus/
+COPY ./src/BuildingBlocks/CommonContracts/CommonContracts.csproj ./BuildingBlocks/CommonContracts/
+COPY ./src/BuildingBlocks/EventBus/EventBus.csproj ./BuildingBlocks/EventBus/
+COPY ./src/UserService/UserService.Api/UserService.Api.csproj ./UserService/UserService.Api/
+COPY ./src/UserService/UserService.Domain/UserService.Domain.csproj ./UserService/UserService.Domain/
+COPY ./src/UserService/UserService.Infrastructure/UserService.Infrastructure.csproj ./UserService/UserService.Infrastructure/
 
-RUN dotnet restore UserService.Api/UserService.Api.csproj
+RUN dotnet restore ./UserService/UserService.Api/UserService.Api.csproj
 
 COPY ./src .
+RUN dotnet build ./UserService/UserService.Api/UserService.Api.csproj -c Release -o /app/build
 
-RUN dotnet build UserService.Api/UserService.Api.csproj -c Release -o /app/build
-
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/build .
 ENV ASPNETCORE_URLS=http://+:80

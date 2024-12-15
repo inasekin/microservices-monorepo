@@ -1,7 +1,6 @@
-using UserService.Domain.Models;
-using UserService.Infrastructure;
-using CommonContracts;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using UserService.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,12 +14,16 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwagger(c => c.RouteTemplate = "swagger/user/{documentName}/swagger.json");
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/user/v1/swagger.json", "User Service API");
+        c.RoutePrefix = "swagger/user";
+    });
 }
 
 // Простой эндпоинт для проверки
-app.MapGet("/profile/{id}", async (Guid id, UserProfileRepository repo) =>
+app.MapGet("/profile/{id}", async (Guid id, [FromServices] UserProfileRepository repo) =>
 {
     var profile = await repo.GetProfileByIdAsync(id);
     return profile == null ? Results.NotFound() : Results.Ok(profile);

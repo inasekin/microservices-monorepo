@@ -3,9 +3,11 @@ services:
   gatewayservice:
     build: ./src/GatewayService
     ports:
-      - "5000:80"
+      - "5010:80"
     depends_on:
       - authservice
+      - userservice
+      - projectservice
       - rabbitmq
 
   authservice:
