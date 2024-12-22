@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UserService.Infrastructure;
 
@@ -12,21 +11,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger(c => c.RouteTemplate = "swagger/user/{documentName}/swagger.json");
+    app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/user/v1/swagger.json", "User Service API");
-        c.RoutePrefix = "swagger/user";
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "User Service API");
+        c.RoutePrefix = "swagger";
     });
 }
 
-// Простой эндпоинт для проверки
-app.MapGet("/profile/{id}", async (Guid id, [FromServices] UserProfileRepository repo) =>
-{
-    var profile = await repo.GetProfileByIdAsync(id);
-    return profile == null ? Results.NotFound() : Results.Ok(profile);
-});
+app.MapGet("/user/test", () => "User Service is running!");
 
 app.Run();

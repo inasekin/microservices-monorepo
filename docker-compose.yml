@@ -1,14 +1,22 @@
 ﻿version: '3.9'
+networks:
+  gateway_network:
+    driver: bridge
+
 services:
   gatewayservice:
     build: ./src/GatewayService
     ports:
       - "5010:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
     depends_on:
       - authservice
       - userservice
       - projectservice
       - rabbitmq
+    networks:
+      - gateway_network
 
   authservice:
     build:
@@ -22,6 +30,8 @@ services:
     depends_on:
       - authdb
       - rabbitmq
+    networks:
+      - gateway_network
 
   userservice:
     build:
@@ -35,6 +45,8 @@ services:
     depends_on:
       - userdb
       - rabbitmq
+    networks:
+      - gateway_network
 
   projectservice:
     build:
@@ -48,6 +60,8 @@ services:
     depends_on:
       - projectdb
       - rabbitmq
+    networks:
+      - gateway_network
 
   authdb:
     image: postgres:14
@@ -57,6 +71,8 @@ services:
       POSTGRES_DB: "auth_db"
     ports:
       - "5433:5432"
+    networks:
+      - gateway_network
 
   userdb:
     image: postgres:14
@@ -64,6 +80,8 @@ services:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
       POSTGRES_DB: "user_db"
+    networks:
+      - gateway_network
 
   projectdb:
     image: postgres:14
@@ -71,6 +89,8 @@ services:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
       POSTGRES_DB: "project_db"
+    networks:
+      - gateway_network
 
   # MongoDB для сервисов, которые используют NoSQL
   # mongodb:
@@ -83,3 +103,5 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    networks:
+      - gateway_network

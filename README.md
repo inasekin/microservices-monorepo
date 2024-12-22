@@ -21,3 +21,6 @@
 1. Соберите все проекты:
    ```bash
    dotnet build MicroservicesMonorepo.sln
+2. Запускаем docker:
+   ```bash
+   docker-compose up -d --build

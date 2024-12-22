@@ -23,11 +23,11 @@ namespace AuthService.Api
             var app = builder.Build();
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger(c => c.RouteTemplate = "swagger/auth/{documentName}/swagger.json");
+                app.UseSwagger();
                 app.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("/swagger/auth/v1/swagger.json", "Auth Service API");
-                    c.RoutePrefix = "swagger/auth";
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Auth Service API");
+                    c.RoutePrefix = "swagger";
                 });
             }
 
