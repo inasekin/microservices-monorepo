@@ -5,11 +5,12 @@ networks:
 
 services:
   gatewayservice:
-    build: ./src/GatewayService
+    build: ./src/Gateway
     ports:
       - "5010:80"
     environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DOTNET_RUNNING_IN_CONTAINER=true
     depends_on:
       - authservice
       - userservice
@@ -21,45 +22,48 @@ services:
   authservice:
     build:
       context: .
-      dockerfile: ./src/AuthService/Dockerfile
+      dockerfile: ./src/Services/AuthService/Dockerfile
     ports:
       - "5001:80"
     environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
-      ConnectionStrings__Default: "Host=authdb;Database=auth_db;Username=postgres;Password=postgres;"
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Default=Host=authdb;Database=auth_db;Username=postgres;Password=postgres;
     depends_on:
       - authdb
       - rabbitmq
+    container_name: authservice
     networks:
       - gateway_network
 
   userservice:
     build:
       context: .
-      dockerfile: ./src/UserService/Dockerfile
+      dockerfile: ./src/Services/UserService/Dockerfile
     ports:
       - "5002:80"
     environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
-      ConnectionStrings__Default: "Host=userdb;Database=user_db;Username=postgres;Password=postgres;"
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Default=Host=userdb;Database=user_db;Username=postgres;Password=postgres;
     depends_on:
       - userdb
       - rabbitmq
+    container_name: userservice
     networks:
       - gateway_network
 
   projectservice:
     build:
       context: .
-      dockerfile: ./src/ProjectService/Dockerfile
+      dockerfile: ./src/Services/ProjectService/Dockerfile
     ports:
       - "5003:80"
     environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
-      ConnectionStrings__Default: "Host=projectdb;Database=project_db;Username=postgres;Password=postgres;"
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Default=Host=projectdb;Database=project_db;Username=postgres;Password=postgres;
     depends_on:
       - projectdb
       - rabbitmq
+    container_name: projectservice
     networks:
       - gateway_network
 
@@ -73,6 +77,11 @@ services:
       - "5433:5432"
     networks:
       - gateway_network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   userdb:
     image: postgres:14
@@ -80,8 +89,15 @@ services:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
       POSTGRES_DB: "user_db"
+    ports:
+      - "5434:5432"
     networks:
       - gateway_network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   projectdb:
     image: postgres:14
@@ -89,14 +105,15 @@ services:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
       POSTGRES_DB: "project_db"
+    ports:
+      - "5435:5432"
     networks:
       - gateway_network
-
-  # MongoDB для сервисов, которые используют NoSQL
-  # mongodb:
-  #   image: mongo:5
-  #   ports:
-  #     - "27017:27017"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   rabbitmq:
     image: rabbitmq:3-management

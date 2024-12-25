@@ -13,31 +13,31 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBus", "src\BuildingBlo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AuthService", "AuthService", "{A74B1A5E-71F6-43D0-AC10-F2D831C8CA06}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService.Api", "src\AuthService\AuthService.Api\AuthService.Api.csproj", "{24C42FB8-1322-4C5A-A657-7EB1E35269C3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService.Api", "src\Services\AuthService\AuthService.Api\AuthService.Api.csproj", "{24C42FB8-1322-4C5A-A657-7EB1E35269C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService.Domain", "src\AuthService\AuthService.Domain\AuthService.Domain.csproj", "{E754B3AC-CF0A-44D7-B3E0-A853FC2F15C7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService.Domain", "src\Services\AuthService\AuthService.Domain\AuthService.Domain.csproj", "{E754B3AC-CF0A-44D7-B3E0-A853FC2F15C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService.Infrastructure", "src\AuthService\AuthService.Infrastructure\AuthService.Infrastructure.csproj", "{5078DB2B-1EAB-4576-9527-F32C6EB3857B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService.Infrastructure", "src\Services\AuthService\AuthService.Infrastructure\AuthService.Infrastructure.csproj", "{5078DB2B-1EAB-4576-9527-F32C6EB3857B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UserService", "UserService", "{919DD523-B139-4996-B8E6-1FF6D098FE6B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.Api", "src\UserService\UserService.Api\UserService.Api.csproj", "{EA44D81C-1C87-4A2A-9FC9-325B337873BF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.Api", "src\Services\UserService\UserService.Api\UserService.Api.csproj", "{EA44D81C-1C87-4A2A-9FC9-325B337873BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.Domain", "src\UserService\UserService.Domain\UserService.Domain.csproj", "{2E4BFF59-1671-47FC-93C6-4EE0FB0353F2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.Domain", "src\Services\UserService\UserService.Domain\UserService.Domain.csproj", "{2E4BFF59-1671-47FC-93C6-4EE0FB0353F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.Infrastructure", "src\UserService\UserService.Infrastructure\UserService.Infrastructure.csproj", "{2EAF1314-D09E-4201-B52B-1448EE7F6C0F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.Infrastructure", "src\Services\UserService\UserService.Infrastructure\UserService.Infrastructure.csproj", "{2EAF1314-D09E-4201-B52B-1448EE7F6C0F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProjectService", "ProjectService", "{8A8D71A1-372B-4AD3-B2B5-26374937E5CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectService.Api", "src\ProjectService\ProjectService.Api\ProjectService.Api.csproj", "{39325FC2-579D-4FA9-BF50-C45E05BDE85B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectService.Api", "src\Services\ProjectService\ProjectService.Api\ProjectService.Api.csproj", "{39325FC2-579D-4FA9-BF50-C45E05BDE85B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectService.Domain", "src\ProjectService\ProjectService.Domain\ProjectService.Domain.csproj", "{C1299B75-05AC-4E98-A77E-4344EB85CD05}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectService.Domain", "src\Services\ProjectService\ProjectService.Domain\ProjectService.Domain.csproj", "{C1299B75-05AC-4E98-A77E-4344EB85CD05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectService.Infrastructure", "src\ProjectService\ProjectService.Infrastructure\ProjectService.Infrastructure.csproj", "{14083803-F0EF-4633-9D39-1EF562376633}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectService.Infrastructure", "src\Services\ProjectService\ProjectService.Infrastructure\ProjectService.Infrastructure.csproj", "{14083803-F0EF-4633-9D39-1EF562376633}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GatewayService", "GatewayService", "{E6F8D74B-1D55-4311-8832-6D8E5DA9BEB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GatewayService.Api", "src\GatewayService\GatewayService.Api\GatewayService.Api.csproj", "{3CCC44C6-A02F-46FB-8D3F-019D0AD6A8D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GatewayService.Api", "src\Gateway\GatewayService.Api\GatewayService.Api.csproj", "{3CCC44C6-A02F-46FB-8D3F-019D0AD6A8D3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{6429A45B-AB03-4A22-BE72-D97AC706697E}"
 EndProject
