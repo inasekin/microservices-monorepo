@@ -1,5 +1,8 @@
 ﻿# Microservices Monorepo
 
+![CI](https://github.com/inasekin/microservices-monorepo/workflows/CI/badge.svg)
+[![Maintainability](https://api.codeclimate.com/v1/badges/abebd1eb315cbe567ca0/maintainability)](https://codeclimate.com/github/inasekin/microservices-monorepo/maintainability)
+
 ## О проекте
 Этот репозиторий представляет собой монорепозиторий для микросервисного проекта на .NET. Включает несколько микросервисов, инфраструктурные компоненты, базу данных и фронтенд-часть.
 
@@ -9,7 +12,8 @@
 - `frontend/` — исходный код фронтенд-приложения.
 - `docker/` — Docker-файлы и вспомогательные скрипты.
 - `Makefile` — удобные команды для управления проектом.
-- `docker-compose/` — файлы для запуска инфраструктуры и сервисов.
+- `docs/` — документация к проекту (архитектура, ERD и тд).
+- `tests/` — тесты к приложению.
 
 ## Требования
 
