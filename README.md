@@ -1,26 +1,95 @@
 ﻿# Microservices Monorepo
 
-Данный репозиторий — монорепозиторий для микросервисного проекта на .NET. В нем представлены несколько микросервисов, общий код, event bus и инфраструктура.
+## О проекте
+Этот репозиторий представляет собой монорепозиторий для микросервисного проекта на .NET. Включает несколько микросервисов, инфраструктурные компоненты, базу данных и фронтенд-часть.
 
 ## Структура репозитория
 
-- `src/` — исходный код сервисов и building blocks.
-- `tests/` — проекты для автоматизированных тестов.
-- `docs/` — документация, схемы архитектуры.
-- `docker/` — вспомогательные скрипты и файлы для развёртывания (миграции БД, init-скрипты).
-- `docker-compose.yml` — файл для запуска всех сервисов локально.
+- `src/` — исходный код микросервисов и компонентов.
+- `frontend/` — исходный код фронтенд-приложения.
+- `docker/` — Docker-файлы и вспомогательные скрипты.
+- `Makefile` — удобные команды для управления проектом.
+- `docker-compose/` — файлы для запуска инфраструктуры и сервисов.
 
-## Как запустить локально
+## Требования
 
-### Предварительные требования
-- Установленный .NET 8 SDK
-- Docker и docker-compose
+### Инструменты
 
-### Шаги запуска
+1. **Docker и Docker Compose**:
+   - Установить [Docker](https://docs.docker.com/get-docker/).
+   - Установить [Docker Compose](https://docs.docker.com/compose/install/).
 
-1. Соберите все проекты:
+2. **Make**:
+   - Make — это инструмент автоматизации. Используется для упрощения запуска команд.
+   - Установка на macOS и Linux:
+     ```bash
+     sudo apt update && sudo apt install make -y # Для Ubuntu/Debian
+     brew install make                           # Для macOS
+     ```
+   - Установка на Windows:
+      - Установить [Make для Windows](http://gnuwin32.sourceforge.net/packages/make.htm).
+      - Добавить `make` в переменную окружения PATH.
+
+3. **.NET SDK 8.0**:
+   - Скачать и установить с официального сайта: [.NET SDK](https://dotnet.microsoft.com/download).
+
+## Шаги запуска
+
+### Запуск инфраструктуры (БД, RabbitMQ и др.)
+
+1. Соберите инфраструктуру:
    ```bash
-   dotnet build MicroservicesMonorepo.sln
-2. Запускаем docker:
+   make infra-up
+   ```
+2. Остановите инфраструктуру:
    ```bash
-   docker-compose up -d --build
+   make infra-down
+   ```
+
+### Запуск микросервисов
+1. Соберите и запустите микросервисы:
+   ```bash
+   make services-up
+   ```
+2. Перезапустите отдельный сервис:
+   ```bash
+   make restart-service SERVICE=<имя_сервиса>
+   ```
+3. Остановите микросервисы:
+   ```bash
+   make services-down
+   ```
+
+### Запуск frontend
+1. Соберите и запустите фронтенд:
+   ```bash
+   make frontend-up
+   ```
+2. Остановите фронтенд:
+   ```bash
+   make frontend-down
+   ```
+
+### Стартовые миграции
+
+#### AuthService:
+   ```bash
+   dotnet ef migrations add InitAuthDb \
+   --project src/Services/AuthService/AuthService.Infrastructure/AuthService.Infrastructure.csproj \
+   --startup-project src/Services/AuthService/AuthService.Api/AuthService.Api.csproj \
+   --output-dir Migrations
+   ```
+#### UserService:
+   ```bash
+   dotnet ef migrations add InitUserDb \
+   --project src/Services/UserService/UserService.Infrastructure/UserService.Infrastructure.csproj \
+   --startup-project src/Services/UserService/UserService.Api/UserService.Api.csproj \
+   --output-dir Migrations
+   ```
+#### ProjectService:
+   ```bash
+   dotnet ef migrations add InitProjectDb \
+   --project src/Services/ProjectService/ProjectService.Infrastructure/ProjectService.Infrastructure.csproj \
+   --startup-project src/Services/ProjectService/ProjectService.Api/ProjectService.Api.csproj \
+   --output-dir Migrations
+   ```

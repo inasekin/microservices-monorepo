@@ -36,6 +36,15 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
+    },
+    "ProjectService": {
+      "commandName": "ProjectService",
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:6001",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ConnectionStrings__Default": "Host=localhost;Database=user_db;Username=postgres;Password=postgres"
+      }
     }
   }
 }

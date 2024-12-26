@@ -36,6 +36,15 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
+    },
+    "AuthService": {
+      "commandName": "AuthService",
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:6001",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ConnectionStrings__Default": "Host=localhost;Database=user_db;Username=postgres;Password=postgres"
+      }
     }
   }
 }

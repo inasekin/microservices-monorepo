@@ -3,6 +3,7 @@
     public class Project
     {
         public Guid Id { get; set; }
-        public string ProjectName { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public Guid OwnerId { get; set; }
     }
 }

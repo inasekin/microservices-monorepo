@@ -1,0 +1,12 @@
+version: '3.9'
+
+services:
+  frontend:
+    build:
+      context: ../frontend
+      target: dev  # Для разработки (меняйте на `production` для сборки)
+    ports:
+      - "3000:3000"  # Для разработки
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules  # Убедитесь, что конфликтов с локальными зависимостями нет

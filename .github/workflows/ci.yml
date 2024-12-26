@@ -15,11 +15,24 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.x'
+
       - name: Restore dependencies
         run: dotnet restore MicroservicesMonorepo.sln
 
-      - name: Build
+      - name: Build backend
         run: dotnet build MicroservicesMonorepo.sln --no-restore -c Release
 
-      - name: Test
+      - name: Test backend
         run: dotnet test MicroservicesMonorepo.sln --no-build -c Release
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm install --legacy-peer-deps
+
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build

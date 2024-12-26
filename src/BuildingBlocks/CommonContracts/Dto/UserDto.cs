@@ -1,4 +1,4 @@
-﻿namespace CommonContracts
+﻿namespace CommonContracts.Dto
 {
     public class UserDto
     {

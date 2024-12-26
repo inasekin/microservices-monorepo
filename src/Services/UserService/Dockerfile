@@ -1,13 +1,13 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src/Services
+WORKDIR /src
 
 COPY ./src/BuildingBlocks/CommonContracts/CommonContracts.csproj ./BuildingBlocks/CommonContracts/
 COPY ./src/BuildingBlocks/EventBus/EventBus.csproj ./BuildingBlocks/EventBus/
-COPY ./src/Services/UserService/UserService.Api/UserService.Api.csproj ./UserService/UserService.Api/
-COPY ./src/Services/UserService/UserService.Domain/UserService.Domain.csproj ./UserService/UserService.Domain/
-COPY ./src/Services/UserService/UserService.Infrastructure/UserService.Infrastructure.csproj ./UserService/UserService.Infrastructure/
+COPY ./src/Services/UserService/UserService.Api/UserService.Api.csproj ./Services/UserService/UserService.Api/
+COPY ./src/Services/UserService/UserService.Domain/UserService.Domain.csproj ./Services/UserService/UserService.Domain/
+COPY ./src/Services/UserService/UserService.Infrastructure/UserService.Infrastructure.csproj ./Services/UserService/UserService.Infrastructure/
 
-RUN dotnet restore ./UserService/UserService.Api/UserService.Api.csproj
+RUN dotnet restore ./Services/UserService/UserService.Api/UserService.Api.csproj
 
 COPY ./src .
 RUN dotnet build ./Services/UserService/UserService.Api/UserService.Api.csproj -c Release -o /app/build

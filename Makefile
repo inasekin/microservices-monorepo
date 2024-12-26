@@ -1,183 +1,213 @@
 ################################################################################
-# ПЕРЕМЕННЫЕ (примерные)
+# ПЕРЕМЕННЫЕ
 ################################################################################
 
-# Список директорий с микросервисами
-SERVICES = ServiceA ServiceB ServiceC
+# Предполагаем, что есть 3 сервиса: AuthService, ProjectService, UserService.
+SERVICES = AuthService ProjectService UserService
 
-# Корневая папка, где лежат директории сервисов
-SERVICES_PATH = ./services
+# Папка, где лежат эти сервисы
+SERVICES_PATH = ./src/Services
 
-# Конфигурация .NET по умолчанию
+# Фронтенд
+FRONTEND_PATH = ./frontend
+
+# Конфигурация .NET (Debug/Release)
 CONFIGURATION = Debug
 
-# Тег для локальных Docker-образов (например: myapp, myregistry/myapp)
+# Тег для Docker-образов
 DOCKER_TAG = myapp
 
+# Папка для Docker Compose файлов
+DOCKER_FOLDER = ./docker
+
+# Docker Compose команда
+DOCKER_COMPOSE = docker compose
+
 ################################################################################
-# Команды для ВСЕХ микросервисов (.NET)
+# Команды для ВСЕХ микросервисов (сборка/запуск)
 ################################################################################
 
 ## build-all
-## Собрать все микросервисы (по умолчанию Debug; используйте CONFIGURATION=Release)
+## Собрать все сервисы (используя .Api-проекты)
 build-all:
-	@echo "Собираем все сервисы в $(CONFIGURATION) конфигурации..."
+	@echo "Собираем все сервисы..."
 	@for s in $(SERVICES); do \
 		echo " -> Сборка $$s..."; \
-		dotnet build $(SERVICES_PATH)/$$s -c $(CONFIGURATION); \
+		dotnet build \
+			$(SERVICES_PATH)/$$s/$$s.Api/$$s.Api.csproj \
+			-c $(CONFIGURATION); \
 	done
 
 ## run-all
-## Запустить все микросервисы ПАРАЛЛЕЛЬНО (обычный режим)
+## Запустить все сервисы ПАРАЛЛЕЛЬНО
 run-all:
-	@echo "Запускаем все микросервисы ПАРАЛЛЕЛЬНО (обычный режим)..."
-	@echo "Подсказка: для продакшена обычно используют Docker/K8s/docker-compose и т.д."
+	@echo "Запускаем все микросервисы ПАРАЛЛЕЛЬНО..."
 	@$(foreach s, $(SERVICES), \
-		( dotnet run --project $(SERVICES_PATH)/$(s) -c $(CONFIGURATION) & ) \
-		;)
-	@echo "Все процессы запущены. Для остановки используйте Ctrl+C или kill."
+		( dotnet run \
+			--project $(SERVICES_PATH)/$(s)/$(s).Api/$(s).Api.csproj \
+			-c $(CONFIGURATION) & ) \
+	;)
+	@echo "Все процессы запущены. Остановка: Ctrl+C."
 
 ## watch-all
-## Запускает все сервисы последовательно в режиме hot reload
-## (На практике hot reload для множества сервисов редко удобен; обычно для одного)
+## Запускает все сервисы ПОСЛЕДОВАТЕЛЬНО в hot reload
 watch-all:
 	@echo "Запускаем все сервисы ПОСЛЕДОВАТЕЛЬНО (hot reload)..."
 	@for s in $(SERVICES); do \
 		echo " -> Hot reload для $$s..."; \
-		dotnet watch --project $(SERVICES_PATH)/$$s run; \
+		dotnet watch \
+			--project $(SERVICES_PATH)/$$s/$$s.Api/$$s.Api.csproj run; \
 	done
 
 ## debug-all
-## Запустить все микросервисы в режиме отладки (Debug)
+## Запустить все сервисы в режиме Debug
 debug-all:
 	@echo "Запускаем все микросервисы в режиме отладки..."
 	@$(foreach s, $(SERVICES), \
-		( dotnet run --project $(SERVICES_PATH)/$(s) -c Debug & ) \
-		;)
+		( dotnet run \
+			--project $(SERVICES_PATH)/$(s)/$(s).Api/$(s).Api.csproj \
+			-c Debug & ) \
+	;)
 	@echo "Все процессы в Debug. Подключайтесь из IDE к каждому порту/процессу."
 
 ################################################################################
-# Команды для ОДНОГО микросервиса (указывать: SERVICE=<ИмяПапки>)
+# Команды для ОДНОГО микросервиса (указывать SERVICE=AuthService и т.д.)
 ################################################################################
 
 ## build
-## Сборка конкретного микросервиса: make build SERVICE=ServiceA
 build:
 ifndef SERVICE
-	$(error Необходимо указать SERVICE=<ИмяПапкиСервиса>)
+	$(error "Укажите SERVICE=<ИмяСервиса> (AuthService, ProjectService, ...)")
 endif
-	@echo "Собираем сервис: $(SERVICE) (конфигурация: $(CONFIGURATION))"
-	dotnet build $(SERVICES_PATH)/$(SERVICE) -c $(CONFIGURATION)
+	@echo "Собираем сервис: $(SERVICE)"
+	dotnet build $(SERVICES_PATH)/$(SERVICE)/$(SERVICE).Api/$(SERVICE).Api.csproj -c $(CONFIGURATION)
 
 ## run
-## Запуск конкретного микросервиса: make run SERVICE=ServiceA
 run:
 ifndef SERVICE
-	$(error Необходимо указать SERVICE=<ИмяПапкиСервиса>)
+	$(error "Укажите SERVICE=<ИмяСервиса>")
 endif
-	@echo "Запускаем сервис: $(SERVICE) в конфигурации $(CONFIGURATION)"
-	dotnet run --project $(SERVICES_PATH)/$(SERVICE) -c $(CONFIGURATION)
+	@echo "Запускаем сервис: $(SERVICE)"
+	dotnet run --project $(SERVICES_PATH)/$(SERVICE)/$(SERVICE).Api/$(SERVICE).Api.csproj -c $(CONFIGURATION)
 
 ## watch
-## Запуск конкретного микросервиса с hot reload: make watch SERVICE=ServiceA
 watch:
 ifndef SERVICE
-	$(error Необходимо указать SERVICE=<ИмяПапкиСервиса>)
+	$(error "Укажите SERVICE=<ИмяСервиса>")
 endif
 	@echo "Hot reload для сервиса: $(SERVICE)"
-	dotnet watch --project $(SERVICES_PATH)/$(SERVICE) run
+	dotnet watch --project $(SERVICES_PATH)/$(SERVICE)/$(SERVICE).Api/$(SERVICE).Api.csproj run
 
 ## debug
-## Запуск конкретного сервиса в режиме отладки: make debug SERVICE=ServiceA
 debug:
 ifndef SERVICE
-	$(error Необходимо указать SERVICE=<ИмяПапкиСервиса>)
+	$(error "Укажите SERVICE=<ИмяСервиса>")
 endif
-	@echo "Запуск $(SERVICE) в режиме Debug..."
-	dotnet run --project $(SERVICES_PATH)/$(SERVICE) -c Debug
+	@echo "Запуск сервиса: $(SERVICE) в Debug"
+	dotnet run --project $(SERVICES_PATH)/$(SERVICE)/$(SERVICE).Api/$(SERVICE).Api.csproj -c Debug
 
 ################################################################################
-# Создание нового микросервиса (шаблон webapi)
+# MIGRATE-ALL
 ################################################################################
 
-## create-service
-## Пример: make create-service NAME=SomeNewService
-## При желании используйте любой шаблон (webapi, worker и т.д.)
-create-service:
-ifndef NAME
-	$(error Укажите имя нового сервиса: make create-service NAME=MyNewService)
-endif
-	@echo "Создаем новый сервис: $(NAME)"
-	dotnet new webapi -n $(NAME) -o $(SERVICES_PATH)/$(NAME)
-	@echo "Готово! Не забудьте добавить $(NAME) в список SERVICES в Makefile."
-	@echo "А также создать Dockerfile в папке $(SERVICES_PATH)/$(NAME), если нужно."
-
-################################################################################
-# Docker / Docker Compose
-################################################################################
-
-## docker-build-all
-## Собрать Docker-образы для всех микросервисов (локально)
-docker-build-all:
-	@echo "Собираем Docker-образы для всех сервисов..."
+## migrate-all
+## Выполняем EF миграции для каждого сервиса
+migrate-all:
 	@for s in $(SERVICES); do \
-		echo " -> Docker build для $$s..."; \
-		docker build \
-			-t $(DOCKER_TAG)/$$s:latest \
-			$(SERVICES_PATH)/$$s; \
+		echo "-> Выполняем EF миграции для $$s"; \
+		dotnet ef database update \
+		  --project $(SERVICES_PATH)/$$s/$$s.Infrastructure/$$s.Infrastructure.csproj \
+		  --startup-project $(SERVICES_PATH)/$$s/$$s.Api/$$s.Api.csproj \
+		  || true; \
 	done
-	@echo "Все образы собраны локально (с тегом: $(DOCKER_TAG)/<Service>:latest)."
 
-## docker-build
-## Собрать Docker-образ для конкретного сервиса: make docker-build SERVICE=ServiceA
-docker-build:
+################################################################################
+# Docker Compose (разделённые)
+################################################################################
+
+## infra-up
+## Запускает инфраструктурные сервисы (БД, RabbitMQ, pgAdmin)
+infra-up:
+	$(DOCKER_COMPOSE) -f $(DOCKER_FOLDER)/docker-compose.infra.yml up -d --build
+
+## infra-down
+## Останавливает инфраструктурные сервисы
+infra-down:
+	$(DOCKER_COMPOSE) -f $(DOCKER_FOLDER)/docker-compose.infra.yml down
+
+## infra-restart
+## Перезапускает инфраструктурные сервисы
+infra-restart:
+	$(MAKE) infra-down
+	$(MAKE) infra-up
+
+## services-up
+## Запускает микросервисы
+services-up:
+	$(DOCKER_COMPOSE) -f $(DOCKER_FOLDER)/docker-compose.services.yml up -d --build
+
+## services-down
+## Останавливает микросервисы
+services-down:
+	$(DOCKER_COMPOSE) -f $(DOCKER_FOLDER)/docker-compose.services.yml down
+
+## services-restart
+## Перезапускает микросервисы
+services-restart:
+	$(MAKE) services-down
+	$(MAKE) services-up
+
+## restart-service
+## Перезапускает конкретный микросервис
+restart-service:
 ifndef SERVICE
-	$(error Укажите SERVICE=<ИмяПапкиСервиса>)
+	$(error "Укажите SERVICE=<ИмяСервиса> для перезапуска")
 endif
-	@echo "Собираем Docker-образ для сервиса: $(SERVICE)"
-	docker build \
-		-t $(DOCKER_TAG)/$(SERVICE):latest \
-		$(SERVICES_PATH)/$(SERVICE)
+	$(DOCKER_COMPOSE) -f $(DOCKER_FOLDER)/docker-compose.services.yml restart $(SERVICE)
 
-## docker-up
-## Запуск всего стека через docker-compose (фоново, -d)
-docker-up:
-	@echo "Запуск docker-compose up (в фоновом режиме)..."
-	docker compose up -d --build
-	@echo "Все сервисы запущены в контейнерах. Смотрите: docker ps"
+################################################################################
+# Фронтенд
+################################################################################
 
-## docker-down
-## Остановить и удалить все контейнеры docker-compose
-docker-down:
-	@echo "Останавливаем и удаляем все контейнеры docker-compose..."
-	docker compose down
+## frontend-build
+## Собирает Docker-образ для фронтенда
+frontend-build:
+	@echo "Собираем фронтенд..."
+	docker build -t $(DOCKER_TAG)/frontend:latest $(FRONTEND_PATH)
 
-## docker-stop
-## Остановить все контейнеры (но НЕ удалять)
-docker-stop:
-	@echo "Останавливаем все контейнеры (без удаления)..."
-	docker compose stop
+## frontend-up
+## Запускает фронтенд
+frontend-up:
+	$(DOCKER_COMPOSE) -f ./docker/docker-compose.frontend.yml up -d --build
 
-## docker-logs
-## Просмотр логов всех сервисов (docker-compose logs -f)
-docker-logs:
-	@echo "Показываем логи всех контейнеров (нажмите Ctrl+C для выхода)..."
-	docker compose logs -f
+frontend-dev-up:
+	$(DOCKER_COMPOSE) -f ./docker/docker-compose.frontend.yml up --build frontend
 
-## docker-push
-## Пример команды для пуша локальных образов в регистр
-docker-push:
-	@echo "Публикуем собранные Docker-образы в регистр (пример)"
-	@for s in $(SERVICES); do \
-		echo " -> push $(DOCKER_TAG)/$$s:latest"; \
-		docker push $(DOCKER_TAG)/$$s:latest; \
-	done
+## frontend-down
+## Останавливает фронтенд
+frontend-down:
+	$(DOCKER_COMPOSE) -f $(DOCKER_FOLDER)/docker-compose.frontend.yml down
 
-## docker-pull
-## Пример команды для скачивания образов из регистра
-docker-pull:
-	@echo "Тянем образы из регистра (пример)"
-	@for s in $(SERVICES); do \
-		echo " -> pull $(DOCKER_TAG)/$$s:latest"; \
-		docker pull $(DOCKER_TAG)/$$s:latest; \
-	done
+## frontend-restart
+## Перезапускает фронтенд
+frontend-restart:
+	$(MAKE) frontend-down
+	$(MAKE) frontend-up
+
+################################################################################
+# Все вместе
+################################################################################
+
+## all-up
+## Запускает инфраструктуру, микросервисы и фронтенд
+all-up:
+	$(MAKE) infra-up
+	$(MAKE) services-up
+	$(MAKE) frontend-up
+
+## all-down
+## Останавливает все (инфраструктуру, микросервисы и фронтенд)
+all-down:
+	$(MAKE) frontend-down
+	$(MAKE) services-down
+	$(MAKE) infra-down
