@@ -169,30 +169,23 @@ endif
 # Фронтенд
 ################################################################################
 
-## frontend-build
-## Собирает Docker-образ для фронтенда
-frontend-build:
-	@echo "Собираем фронтенд..."
-	docker build -t $(DOCKER_TAG)/frontend:latest $(FRONTEND_PATH)
-
 ## frontend-up
-## Запускает фронтенд
+## Запускает фронтенд в режиме разработки
 frontend-up:
-	$(DOCKER_COMPOSE) -f ./docker/docker-compose.frontend.yml up -d --build
-
-frontend-dev-up:
-	$(DOCKER_COMPOSE) -f ./docker/docker-compose.frontend.yml up --build frontend
+	@echo "Запускаем фронтенд на порту 3000 (режим разработки)..."
+	$(DOCKER_COMPOSE) -f ./docker/docker-compose.frontend.yml up --build -d
+	
+## frontend-up
+## Запускает фронтенд в режиме разработки
+frontend-up-dev:
+	@echo "Запускаем фронтенд на порту 3000 (режим разработки)..."
+	$(DOCKER_COMPOSE) -f ./docker/docker-compose.frontend.yml up --build
 
 ## frontend-down
 ## Останавливает фронтенд
 frontend-down:
-	$(DOCKER_COMPOSE) -f $(DOCKER_FOLDER)/docker-compose.frontend.yml down
-
-## frontend-restart
-## Перезапускает фронтенд
-frontend-restart:
-	$(MAKE) frontend-down
-	$(MAKE) frontend-up
+	@echo "Останавливаем фронтенд..."
+	$(DOCKER_COMPOSE) -f ./docker/docker-compose.frontend.yml down -v
 
 ################################################################################
 # Все вместе
