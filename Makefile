@@ -80,7 +80,7 @@ ifndef SERVICE
 	$(error "Укажите SERVICE=<ИмяСервиса> (AuthService, ProjectService, ...)")
 endif
 	@echo "Собираем сервис: $(SERVICE)"
-	dotnet build $(SERVICES_PATH)/$(SERVICE)/$(SERVICE).Api/$(SERVICE).Api.csproj -c $(CONFIGURATION)
+	dotnet build --launch-profile "$(SERVICE)" $(SERVICES_PATH)/$(SERVICE)/$(SERVICE).Api/$(SERVICE).Api.csproj -c $(CONFIGURATION)
 
 ## run
 run:
@@ -88,7 +88,7 @@ ifndef SERVICE
 	$(error "Укажите SERVICE=<ИмяСервиса>")
 endif
 	@echo "Запускаем сервис: $(SERVICE)"
-	dotnet run --project $(SERVICES_PATH)/$(SERVICE)/$(SERVICE).Api/$(SERVICE).Api.csproj -c $(CONFIGURATION)
+	dotnet run --launch-profile "$(SERVICE)" --project $(SERVICES_PATH)/$(SERVICE)/$(SERVICE).Api/$(SERVICE).Api.csproj -c $(CONFIGURATION)
 
 ## watch
 watch:
@@ -96,7 +96,7 @@ ifndef SERVICE
 	$(error "Укажите SERVICE=<ИмяСервиса>")
 endif
 	@echo "Hot reload для сервиса: $(SERVICE)"
-	dotnet watch --project $(SERVICES_PATH)/$(SERVICE)/$(SERVICE).Api/$(SERVICE).Api.csproj run
+	dotnet watch --launch-profile "$(SERVICE)" --project $(SERVICES_PATH)/$(SERVICE)/$(SERVICE).Api/$(SERVICE).Api.csproj run
 
 ## debug
 debug:
@@ -104,7 +104,7 @@ ifndef SERVICE
 	$(error "Укажите SERVICE=<ИмяСервиса>")
 endif
 	@echo "Запуск сервиса: $(SERVICE) в Debug"
-	dotnet run --project $(SERVICES_PATH)/$(SERVICE)/$(SERVICE).Api/$(SERVICE).Api.csproj -c Debug
+	dotnet run --launch-profile "$(SERVICE)" --project $(SERVICES_PATH)/$(SERVICE)/$(SERVICE).Api/$(SERVICE).Api.csproj -c Debug
 
 ################################################################################
 # MIGRATE-ALL

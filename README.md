@@ -15,6 +15,42 @@
 - `docs/` — документация к проекту (архитектура, ERD и тд).
 - `tests/` — тесты к приложению.
 
+## Работа с подмодулями
+
+Git-модули позволяют добавлять другие Git-репозитории как связанные подмодули. Файл .gitmodules содержит информацию о пути и URL для каждого подмодуля:
+
+```text
+   [submodule "frontend"]
+   path = frontend
+   url = https://github.com/inasekin/bugtracker-frontend
+```
+
+### Добавление подмодуля
+
+#### Добавьте подмодуль:
+```bash
+git submodule add <URL> <путь>
+```
+#### Инициализируйте и скачайте подмодуль:
+```bash
+git submodule update --init --recursive
+```
+#### Обновление изменений в подмодуле
+Зайдите в директорию подмодуля:
+```bash
+cd <путь>
+```
+Подтяните изменения:
+```bash
+git pull origin main
+```
+Вернитесь в главную директорию и коммитьте измененный ссылочный комит:
+```bash
+cd ../
+git add .
+git commit -m "feat: update submodule <имя>”
+```
+
 ## Требования
 
 ### Инструменты
@@ -96,4 +132,29 @@
    --project src/Services/ProjectService/ProjectService.Infrastructure/ProjectService.Infrastructure.csproj \
    --startup-project src/Services/ProjectService/ProjectService.Api/ProjectService.Api.csproj \
    --output-dir Migrations
+   ```
+
+### Запуск и дебаг отдельных сервисов
+
+При запуске отдельного сервиса swagger будет доступен по адресу - http://localhost:{порт из Properties/launchSettings.json}/api/v1/{префикс сервиса}/swagger/index.html
+
+Пример - http://localhost:6002/api/v1/user/swagger/index.html
+
+Если запуск первый раз, то нужно будет выполнить миграции
+
+1. Билд проекта:
+   ```bash
+   make build SERVICE=UserService
+   ```
+2. Запуск проекта:
+   ```bash
+   make run SERVICE=UserService
+   ```
+3. Watch проекта:
+   ```bash
+   make watch SERVICE=UserService
+   ```
+4. Debug проекта:
+   ```bash
+   make debug SERVICE=UserService
    ```
