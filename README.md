@@ -73,6 +73,11 @@ git commit -m "feat: update submodule <имя>”
 3. **.NET SDK 8.0**:
    - Скачать и установить с официального сайта: [.NET SDK](https://dotnet.microsoft.com/download).
 
+4. Для работы автоматической проверки хуков используйте команду
+    ```bash
+    git config core.hooksPath .githooks
+    ```
+
 ## Шаги запуска
 
 ### Запуск инфраструктуры (БД, RabbitMQ и др.)

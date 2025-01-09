@@ -1,15 +1,34 @@
-using CommonContracts.Dto;
 using Microsoft.EntityFrameworkCore;
-using UserService.Domain.Models;
-using UserService.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+
+using UserService.Api.Services;
+using UserService.DAL;
+
+using System.Text;
 using EventBus;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var cs = builder.Configuration.GetConnectionString("Default")
-         ?? "Host=userdb;Database=user_db;Username=postgres;Password=postgres";
+var environment = builder.Environment.EnvironmentName;
+Console.WriteLine($"Среда выполнения: {environment}");
 
-builder.Services.AddDbContext<ApplicationDbContext>(opts => opts.UseNpgsql(cs));
+// Подключение к базе данных
+var conn = builder.Configuration.GetConnectionString("Default")
+           ?? "Host=userdb;Database=user_db;Username=postgres;Password=postgres";
+if (string.IsNullOrEmpty(conn))
+{
+    throw new InvalidOperationException("Строка подключения 'DefaultConnection' не найдена.");
+}
+
+// Регистрация DbContext
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(conn)
+        .EnableSensitiveDataLogging()
+        .LogTo(Console.WriteLine));
+Console.WriteLine("Успешное подключение к базе данных.");
+
 builder.Services.AddScoped<UserRepository>();
 
 builder.Services.AddSingleton<IEventBus, RabbitMqEventBus>();
@@ -17,82 +36,113 @@ builder.Services.AddSingleton<IEventBus, RabbitMqEventBus>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var app = builder.Build();
+// Регистрация зависимостей (DI)
+builder.Services.AddScoped<UserManagementService>();
+builder.Services.AddScoped<AuthService>();
 
-using (var scope = app.Services.CreateScope())
+// Настройка аутентификации (JWT)
+var jwtKey = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrEmpty(jwtKey))
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
+    throw new InvalidOperationException("Ключ JWT не настроен в 'Jwt:Key'.");
 }
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtKey)),
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                // Проверка куки для получения токена
+                if (context.Request.Cookies.ContainsKey("AUTH_COOKIE"))
+                {
+                    context.Token = context.Request.Cookies["AUTH_COOKIE"];
+                }
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+// Добавление контроллеров
+builder.Services.AddControllers();
+
+// Настройка CORS
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:3000" };
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("NextJsPolicy", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials(); // Разрешение передачи куки
+    });
+});
+
+// Настройка Swagger (документация API)
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "User Service API", Version = "v1" });
+});
+
+// Сборка приложения
+var app = builder.Build();
+
+// Применение миграций автоматически при запуске
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    try
+    {
+        Console.WriteLine("Применение миграций...");
+        dbContext.Database.Migrate();
+        Console.WriteLine("Миграции успешно применены.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Ошибка при применении миграций: {ex.Message}");
+    }
+}
+
+// Middleware для разработки
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage(); // Показывает детальную информацию об ошибках
     app.UseSwagger(c =>
     {
-        c.RouteTemplate = "api/v1/user/swagger/{documentName}/swagger.json";
+        c.RouteTemplate = "api/user/swagger/{documentName}/swagger.json";
     });
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/api/v1/user/swagger/v1/swagger.json", "User Service API");
-        c.RoutePrefix = "api/v1/user/swagger";
+        c.SwaggerEndpoint("/api/user/swagger/v1/swagger.json", "User Service API");
+        c.RoutePrefix = "api/user/swagger";
     });
 }
-
-app.MapGet("/api/v1/user", async (UserRepository repo) =>
+else
 {
-    var list = await repo.GetAllAsync();
-    return list.Select(u => new UserDto
-    {
-        Id = u.Id,
-        UserName = u.UserName
-    });
-});
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
+}
 
-app.MapGet("/api/v1/user/{id:guid}", async (UserRepository repo, Guid id) =>
-{
-    var user = await repo.GetAsync(id);
-    return user == null
-        ? Results.NotFound()
-        : Results.Ok(new UserDto { Id = user.Id, UserName = user.UserName });
-});
+// Политика CORS
+app.UseCors("NextJsPolicy");
 
-app.MapPost("/api/v1/user", async (UserRepository repo, IEventBus eventBus, UserDto dto) =>
-{
-    var user = new User { Id = Guid.NewGuid(), UserName = dto.UserName };
-    await repo.AddAsync(user);
+// Маршрутизация и аутентификация
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 
-    var ev = new UserCreatedIntegrationEvent(user.Id, user.UserName);
-    eventBus.Publish(ev);
+// Маршрутизация для контроллеров
+app.MapControllers();
 
-    return Results.Created($"/api/v1/user/{user.Id}", new { user.Id });
-});
-
-app.MapPut("/api/v1/user/{id:guid}", async (UserRepository repo, Guid id, UserDto dto) =>
-{
-    var user = await repo.GetAsync(id);
-    if (user == null) return Results.NotFound();
-
-    user.UserName = dto.UserName;
-    await repo.UpdateAsync(user);
-    return Results.NoContent();
-});
-
-app.MapDelete("/api/v1/user/{id:guid}", async (UserRepository repo, Guid id) =>
-{
-    await repo.DeleteAsync(id);
-    return Results.NoContent();
-});
-
+// Запуск приложения
 app.Run();
-
-public class UserCreatedIntegrationEvent(Guid UserId, string UserName) : IntegrationEvent
-{
-    public Guid UserId { get; init; } = UserId;
-    public string UserName { get; init; } = UserName;
-
-    public void Deconstruct(out Guid UserId, out string UserName)
-    {
-        UserId = this.UserId;
-        UserName = this.UserName;
-    }
-}

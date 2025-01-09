@@ -5,7 +5,7 @@ COPY ./src/BuildingBlocks/CommonContracts/CommonContracts.csproj ./BuildingBlock
 COPY ./src/BuildingBlocks/EventBus/EventBus.csproj ./BuildingBlocks/EventBus/
 COPY ./src/Services/UserService/UserService.Api/UserService.Api.csproj ./Services/UserService/UserService.Api/
 COPY ./src/Services/UserService/UserService.Domain/UserService.Domain.csproj ./Services/UserService/UserService.Domain/
-COPY ./src/Services/UserService/UserService.Infrastructure/UserService.Infrastructure.csproj ./Services/UserService/UserService.Infrastructure/
+COPY ./src/Services/UserService/UserService.DAL/UserService.DAL.csproj ./Services/UserService/UserService.DAL/
 
 RUN dotnet restore ./Services/UserService/UserService.Api/UserService.Api.csproj
 

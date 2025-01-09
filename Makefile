@@ -2,8 +2,7 @@
 # ПЕРЕМЕННЫЕ
 ################################################################################
 
-# Предполагаем, что есть 3 сервиса: AuthService, ProjectService, UserService.
-SERVICES = AuthService ProjectService UserService
+SERVICES = ProjectService UserService
 
 # Папка, где лежат эти сервисы
 SERVICES_PATH = ./src/Services
@@ -174,7 +173,7 @@ endif
 frontend-up:
 	@echo "Запускаем фронтенд на порту 3000 (режим разработки)..."
 	$(DOCKER_COMPOSE) -f ./docker/docker-compose.frontend.yml up --build -d
-	
+
 ## frontend-up
 ## Запускает фронтенд в режиме разработки
 frontend-up-dev:
